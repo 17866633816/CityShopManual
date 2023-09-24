@@ -320,7 +320,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         //1.查询店铺数据
         Shop shop = getById(id);
         Thread.sleep(200);
-        //2.封装逻辑过期时间
+        //2.封装逻辑过期时间和店铺数据
         RedisData redisData = new RedisData();
         redisData.setData(shop);
         redisData.setExpireTime(LocalDateTime.now().plusSeconds(expireTime));

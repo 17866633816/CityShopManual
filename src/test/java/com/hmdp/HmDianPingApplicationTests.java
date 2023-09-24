@@ -64,12 +64,12 @@ class HmDianPingApplicationTests {
     }
 
     /**
-     * 提前向Redis中存入热点 key
+     * 提前向 Redis 中存入热点 key
      * @throws InterruptedException
      */
     @Test
     void testSaveShop2Redis() throws InterruptedException {
-        shopService.saveShop2Redis(1L, 10L);
+        shopService.saveShop2Redis(3L, 3000L);
     }
 
     /**
@@ -80,7 +80,6 @@ class HmDianPingApplicationTests {
         Shop shop = shopService.getById(1L);
         redisClient.setWithLogicalExpire(CACHE_SHOP_KEY + 1L, shop, 10L, TimeUnit.SECONDS);
     }
-
 
     /**
      * 导入店铺数据到 GEO

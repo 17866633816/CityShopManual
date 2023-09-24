@@ -14,7 +14,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        //根据ThreadLocal中是否用户信息，判断用户是否登录
+        //根据ThreadLocal中是否有用户信息，判断用户是否登录
         UserDTO user = UserHolder.getUser();
         //没有登陆
         if (user == null){

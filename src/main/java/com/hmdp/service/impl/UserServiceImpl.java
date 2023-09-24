@@ -19,6 +19,7 @@ import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import java.time.LocalDateTime;
@@ -64,24 +65,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //3.正确，生成验证码
         String code = RandomUtil.randomNumbers(6);
 
-        //4.将验证码发送到该手机号
-        log.debug("验证码发送成功，验证码为：{}", code);
-        
-        //5.将验证码存入Redis，并设置过期时间
+        //4.将验证码存入Redis，并设置过期时间
         stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + phone, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
+
+        //5.将验证码发送到该手机号
+        log.debug("验证码发送成功，验证码为：{}", code);
 
         //返回ok
         return Result.ok();
     }
 
     /**
-     * 登录
+     *
      * @param loginForm
-     * @param session
      * @return
      */
     @Override
-    public Result login(LoginFormDTO loginForm, HttpSession session) {
+    public Result login(LoginFormDTO loginForm) {
 
         //1.校验手机号格式是否正确
         String phone = loginForm.getPhone();
@@ -215,5 +215,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             signs >>>= 1;
         }
         return Result.ok(count);
+    }
+
+    @Override
+    public Result logout(HttpServletRequest request) {
+        //1.获取请求头中的token
+        String token = request.getHeader("authorization");
+
+        //2.从redis中删除此token
+        stringRedisTemplate.delete(LOGIN_USER_KEY + token);
+
+        //3.返回成功
+        return Result.ok("已退出登录");
     }
 }
