@@ -127,4 +127,5 @@ class HmDianPingApplicationTests {
         }
         System.out.println(stringRedisTemplate.opsForHyperLogLog().size("hl1"));
     }
+
 }

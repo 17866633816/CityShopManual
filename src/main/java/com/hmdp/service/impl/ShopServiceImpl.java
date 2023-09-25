@@ -39,7 +39,7 @@ import static com.hmdp.utils.RedisConstants.*;
  *  服务实现类
  * </p>
  *
- * @author 虎哥
+ * @author 周星星
  * @since 2021-12-22
  */
 @Service
@@ -66,13 +66,17 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
         //逻辑过期解决缓存击穿
         //Shop shop = redisClient.queryByIdWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class, id2 -> getById(id2), 20l, TimeUnit.SECONDS);
-        Shop shop = queryByIdWithLogicalExpire(id);
+        //Shop shop = queryByIdWithLogicalExpire(id);
 
+        /*上面的每一段代码都对应着此处
         if (shop == null){
             return Result.fail("不存在此店铺!!");
         }
 
-        return Result.ok(shop);
+        return Result.ok(shop);*/
+
+        //使用Redis缓存商户信息,不解决任何问题
+        return commonCache(id);
     }
 
     @Transactional
@@ -155,6 +159,33 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         return Result.ok(shops);
     }
 
+    private Result commonCache(Long id) {
+        //1.从Redis中查询
+        String shopJson = stringRedisTemplate.opsForValue().get(CACHE_SHOP_KEY + id);
+
+        //2.判断Redis是否存在商户信息
+        if (shopJson != null && !shopJson.isEmpty()){
+            //2.1 存在，直接返回给前端
+            Shop shop = JSONUtil.toBean(shopJson, Shop.class);
+            return Result.ok(shop);
+        }
+
+        //3.不存在，缓存重建
+        //3.1 从数据库中查询
+        Shop shop1 = getById(id);
+        //3.2 判断数据库中是否存在
+        if (shop1 == null){
+            //没有查询到，返回查询失败
+            return Result.fail("数据库中无此商户信息");
+        }
+
+        //4.查询成功，缓存到redis中一份
+        String jsonStr = JSONUtil.toJsonStr(shop1);
+        stringRedisTemplate.opsForValue().set(CACHE_SHOP_KEY + id, jsonStr, 10L, TimeUnit.MINUTES);
+
+        //5.发送给前端
+        return Result.ok(shop1);
+    }
 
     //缓存空对象解决缓存穿透
     private Shop queryByIdWithPassThrough(long id){
