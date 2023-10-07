@@ -9,6 +9,7 @@ import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.RedisIdWorker;
+import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -261,12 +262,23 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         }
 
         Long userId = UserHolder.getUser().getId();
-        synchronized (userId.toString().intern()) {
+        //使用分布式锁代替synchronize
+        SimpleRedisLock simpleRedisLock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+        //尝试获取锁
+        Boolean lock = simpleRedisLock.tryLock(60);
+        //判断获取锁是否成功
+        if (!lock){
+            //获取失败
+            Result.fail("请不要重复下单！");
+        }
+        try{
             //获取当前类的代理对象
             IVoucherOrderService currentProxy = (IVoucherOrderService) AopContext.currentProxy();
             return currentProxy.createVoucherOrder(voucherId);
+        }finally {
+            //释放锁
+            simpleRedisLock.unlock();
         }
-
 
     }
 
