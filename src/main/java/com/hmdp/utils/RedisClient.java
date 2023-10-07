@@ -57,6 +57,7 @@ public class RedisClient {
 
         //查看是否是空值。这里的cache不是 null 就是 ""
         if (json != null){
+            //是""，说明是缓存穿透问题
             return null;
         }
 
@@ -66,7 +67,7 @@ public class RedisClient {
         //判断数据库中是否存在
         if (r == null){
             //不存在
-            //向redis中存入一个空值，并设置存活时间
+            //向redis中存入一个空字符串，并设置存活时间
             stringRedisTemplate.opsForValue().set(key, "", time, unit);
             // 返回错误信息
             return null;
@@ -80,6 +81,7 @@ public class RedisClient {
     }
 
 
+    //逻辑过期解决缓存击穿
     private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
     public <R,ID> R queryByIdWithLogicalExpire(String keyPrefix, ID id, Class<R> type, Function<ID,R> dbFallBack,
                                                Long time, TimeUnit unit){

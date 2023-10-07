@@ -5,17 +5,16 @@ import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.VoucherOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 
-/**
- * <p>
- *  服务类
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
+
 public interface IVoucherOrderService extends IService<VoucherOrder> {
 
     Result createOrder(Long voucherId);
 
     void createVoucherOrder(VoucherOrder voucherOrder);
+
+    Result createVoucherOrder(Long voucherId);
+
+    Result seckillVoucher(Long voucherId);
+
+
 }

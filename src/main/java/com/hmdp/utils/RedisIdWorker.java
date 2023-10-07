@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class RedisIdWorker {
 
+    //下面这个时间戳是在ZoneOffset.UTC时区下2022年1月1号0点0分0秒对应的秒数
     private static final long BEGIN_TIMESTAMP = 1640995200L;
     //序列号的位数
     private static final long COUNT_BITS = 32;

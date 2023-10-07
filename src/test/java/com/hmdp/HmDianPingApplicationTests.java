@@ -69,7 +69,7 @@ class HmDianPingApplicationTests {
      */
     @Test
     void testSaveShop2Redis() throws InterruptedException {
-        shopService.saveShop2Redis(3L, 3000L);
+        shopService.saveShop2Redis(1L, 3000L);
     }
 
     /**
@@ -126,6 +126,11 @@ class HmDianPingApplicationTests {
             }
         }
         System.out.println(stringRedisTemplate.opsForHyperLogLog().size("hl1"));
+    }
+
+    @Test
+    void test(){
+        String s = new String("660");
     }
 
 }
