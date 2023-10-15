@@ -9,8 +9,6 @@
 local voucherId = ARGV[1]
 --- 1.2 用户id
 local userId = ARGV[2]
---- 1.3 订单id
-local orderId = ARGV[3]
 
 --- 2.数据key
 --- 2.1 库存key
@@ -27,6 +25,7 @@ end
 --- 3.3 库存充足
 
 --- 4.判断用户是否下过单
+--- sismember用于判断一个元素是否存在于set中
 if (redis.call('sismember', orderKey, userId) == 1) then
     --- 4.1 用户下过单
     return 2
@@ -37,9 +36,7 @@ end
 redis.call("incrby", stockKey, -1)
 
 --- 6.下单，保存用户到orderKey
+--- set集合在添加第一个元素的时候会自动创建
 redis.call("sadd", orderKey, userId)
-
---- 7.发送消息到消息队列
-redis.call('xadd', 'stream.orders', '*', 'userId', userId, 'voucherId', voucherId, 'id', orderId)
 
 return 0

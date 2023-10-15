@@ -1,15 +1,19 @@
 package com.hmdp;
 
 import com.hmdp.entity.Shop;
+import com.hmdp.entity.VoucherOrder;
 import com.hmdp.service.impl.ShopServiceImpl;
 import com.hmdp.utils.RedisClient;
 import com.hmdp.utils.RedisIdWorker;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,7 @@ import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
 import static com.hmdp.utils.RedisConstants.SHOP_GEO_KEY;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 class HmDianPingApplicationTests {
 
     @Autowired
@@ -37,6 +42,9 @@ class HmDianPingApplicationTests {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     private ExecutorService es = Executors.newFixedThreadPool(500);
 
@@ -130,7 +138,17 @@ class HmDianPingApplicationTests {
 
     @Test
     void test(){
-        String s = new String("660");
+        String queueName = "voucherOrder.queue";
+        //消息
+        VoucherOrder voucherOrder = new VoucherOrder();
+        // 2.3.订单id
+        //long orderId = redisIdWorker.nextId("order");
+        voucherOrder.setId(241886356177944582L);
+        // 2.4.用户id
+        voucherOrder.setUserId(1030L);
+        // 2.5.代金券id
+        voucherOrder.setVoucherId(2L);
+        rabbitTemplate.convertAndSend(queueName, voucherOrder);
     }
 
 }

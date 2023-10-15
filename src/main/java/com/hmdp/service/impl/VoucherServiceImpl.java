@@ -15,17 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 
-/**
- * <p>
- *  服务实现类
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
+import static com.hmdp.utils.RedisConstants.SECKILL_STOCK_KEY;
+
+
 @Service
 public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> implements IVoucherService {
 
+    //秒杀优惠券的业务类
     @Resource
     private ISeckillVoucherService seckillVoucherService;
 
@@ -40,6 +36,10 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         return Result.ok(vouchers);
     }
 
+    /**
+     * 秒杀优惠券是特殊的优惠券，所以可以在普通优惠券的业务类里编写添加秒杀优惠券的代码
+     * @param voucher
+     */
     @Override
     @Transactional
     public void addSeckillVoucher(Voucher voucher) {
@@ -54,6 +54,7 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         seckillVoucherService.save(seckillVoucher);
 
         //保存秒杀优惠券的库存到redis中
-        stringRedisTemplate.opsForValue().set("seckill:stock:"+voucher.getId(), seckillVoucher.getStock().toString());
+        //向Redis存数据时没有设置过期时间，代表是永久的
+        stringRedisTemplate.opsForValue().set(SECKILL_STOCK_KEY + voucher.getId(), seckillVoucher.getStock().toString());
     }
 }
