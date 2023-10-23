@@ -33,14 +33,7 @@ import java.util.stream.Collectors;
 import static com.hmdp.utils.RedisConstants.BLOG_LIKED_KEY;
 import static com.hmdp.utils.RedisConstants.FEED_KEY;
 
-/**
- * <p>
- * 服务实现类
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
+
 @Service
 public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IBlogService {
     @Resource
@@ -243,6 +236,8 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         Long userId = UserHolder.getUser().getId();
         //2.查询收件箱
         String key =FEED_KEY + userId;
+        //min：最小分数、max：最大分数、offset：偏移量、limit：限制条数
+        //偏移量是相对于最大分数的偏移量，比如最大分数是10，偏移量为0就是小于等于10的第一个元素
         Set<ZSetOperations.TypedTuple<String>> typedTuples = stringRedisTemplate.opsForZSet()
                 .reverseRangeByScoreWithScores(key, 0, max, offset, 2);
         //2.1 非空判断
@@ -283,4 +278,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         scrollResult.setOffset(os);
         return Result.ok(scrollResult);
     }
+
+
 }

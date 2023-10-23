@@ -1,6 +1,5 @@
 package com.hmdp.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
@@ -109,7 +108,6 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     /**
      * 根据店铺类型分页查询店铺
-     *
      * @param typeId
      * @param current
      * @param x
@@ -118,9 +116,6 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
      */
     @Override
     public Result queryShopByType(Integer typeId, Integer current, Double x, Double y) {
-        //解决1号店铺查询不出的bug，后期找到原因后可以删除
-        x = null;
-        y = null;
 
         // 1.判断是否需要根据坐标查询
         if (x == null || y == null) {
@@ -138,13 +133,15 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
         // 3.查询redis、按照距离排序、分页。结果：shopId、distance
         String key = SHOP_GEO_KEY + typeId;
-        GeoResults<RedisGeoCommands.GeoLocation<String>> results = stringRedisTemplate.opsForGeo() // GEOSEARCH key BYLONLAT x y BYRADIUS 10 WITHDISTANCE
+        // GEOSEARCH key BYLONLAT x y BYRADIUS 10 WITHDISTANCE
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = stringRedisTemplate.opsForGeo()
                 .search(
                         key,
                         GeoReference.fromCoordinate(x, y),
                         new Distance(5000),
                         RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().limit(end)
                 );
+
         // 4.解析出id
         if (results == null) {
             //如果一个商家也没查询出来，返回给前端一个空集合
@@ -155,7 +152,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             // 没有下一页了，结束
             return Result.ok(Collections.emptyList());
         }
-        // 4.1.截取 from ~ end的部分
+        // 4.1.截取 from ~ end 的部分
         List<Long> ids = new ArrayList<>(list.size());
         Map<String, Distance> distanceMap = new HashMap<>(list.size());
         list.stream().skip(from).forEach(result -> {
@@ -166,12 +163,14 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             Distance distance = result.getDistance();
             distanceMap.put(shopIdStr, distance);
         });
+
         // 5.根据id查询Shop
         String idStr = StrUtil.join(",", ids);
         List<Shop> shops = query().in("id", ids).last("ORDER BY FIELD(id," + idStr + ")").list();
         for (Shop shop : shops) {
             shop.setDistance(distanceMap.get(shop.getId().toString()).getValue());
         }
+
         // 6.返回
         return Result.ok(shops);
     }

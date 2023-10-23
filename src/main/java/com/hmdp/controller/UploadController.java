@@ -17,6 +17,12 @@ import java.util.UUID;
 @RequestMapping("upload")
 public class UploadController {
 
+    /**
+     * 上传照片
+     * MultipartFile：springboot提供的用来对文件进行处理的一个类
+     * @param image
+     * @return
+     */
     @PostMapping("blog")
     public Result uploadImage(@RequestParam("file") MultipartFile image) {
         try {
@@ -44,6 +50,11 @@ public class UploadController {
         return Result.ok();
     }
 
+    /**
+     * 根据原始文件名生成新文件名
+     * @param originalFilename
+     * @return
+     */
     private String createNewFileName(String originalFilename) {
         // 获取后缀
         String suffix = StrUtil.subAfter(originalFilename, ".", true);

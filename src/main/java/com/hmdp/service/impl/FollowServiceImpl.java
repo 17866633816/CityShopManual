@@ -64,7 +64,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
             //4.取关
             //4.1 删除follow表的一条数据
             boolean isSuccess = remove(new QueryWrapper<Follow>().eq("user_id", userId).eq("follow_user_id", id));
-            //4.2 向redis中存入一条数据
+            //4.2 将redis中Set集合里的当前用户id删除
             if (isSuccess){
                 stringRedisTemplate.opsForSet().remove(key, id.toString());
             }

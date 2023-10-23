@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -97,6 +98,7 @@ class HmDianPingApplicationTests {
         // 1.查询店铺信息
         List<Shop> list = shopService.list();
         // 2.把店铺分组，按照typeId分组，typeId一致的放到一个集合
+        // Collectors.groupingBy()方法会将流收集到Map集合中
         Map<Long, List<Shop>> map = list.stream().collect(Collectors.groupingBy(Shop::getTypeId));
         // 3.分批完成写入Redis
         for (Map.Entry<Long, List<Shop>> entry : map.entrySet()) {
@@ -136,6 +138,9 @@ class HmDianPingApplicationTests {
         System.out.println(stringRedisTemplate.opsForHyperLogLog().size("hl1"));
     }
 
+    /**
+     * 测试RabbitMQ
+     */
     @Test
     void test(){
         String queueName = "voucherOrder.queue";
