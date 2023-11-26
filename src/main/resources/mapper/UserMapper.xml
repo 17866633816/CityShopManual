@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hmdp.mapper.UserMapper">
+
+    <!--定义实体类和表字段的映射-->
+    <resultMap id="userMap" type="com.hmdp.entity.User">
+        <id property="nickName" column="nick_name"/>
+        <id property="createTime" column="create_time"/>
+        <id property="updateTime" column="update_time"/>
+    </resultMap>
+    <!--查询出抢到某张秒杀劵的所有用户-->
+    <select id="queryBuySeckillUserById" resultMap="userMap">
+        select nick_name,phone from tb_user,tb_voucher_order where tb_voucher_order.user_id=tb_user.id and tb_voucher_order.voucher_id=#{voucherId}
+    </select>
+</mapper>
