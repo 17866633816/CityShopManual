@@ -1,7 +1,6 @@
 package com.hmdp.controller;
 
 
-import cn.hutool.core.bean.BeanUtil;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
 import com.hmdp.dto.UserDTO;
@@ -9,6 +8,7 @@ import com.hmdp.entity.User;
 import com.hmdp.entity.UserInfo;
 import com.hmdp.service.IUserInfoService;
 import com.hmdp.service.IUserService;
+import com.hmdp.service.impl.UserServiceImpl;
 import com.hmdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +39,7 @@ public class UserController {
     /**
      * 发送手机验证码
      */
-    @PostMapping("code")
+    @PostMapping("/code")
     public Result sendCode(@RequestParam("phone") String phone, HttpSession session) {
         // TODO 发送短信验证码并保存验证码
         return userService.sendCode(phone, session);
@@ -53,6 +53,12 @@ public class UserController {
     public Result login(@RequestBody LoginFormDTO loginForm){
         // TODO 实现登录功能
         return userService.login(loginForm);
+    }
+
+    @GetMapping("/test")
+    public Result test(){
+        System.out.println("=================================================");
+        return Result.ok("你成功访问到了");
     }
 
     /**
@@ -86,16 +92,6 @@ public class UserController {
     }
 
     /**
-     * 根据id查询用户
-     * @param userId
-     * @return
-     */
-    @GetMapping("/{id}")
-    public Result queryUserById(@PathVariable("id") Long userId){
-        return userService.queryUserById(userId);
-    }
-
-    /**
      * 签到
      * @return
      */
@@ -112,4 +108,70 @@ public class UserController {
     public Result signDays(){
         return userService.signDays();
     }
+
+    /**
+     * 根据id查询用户
+     * @param userId
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result queryUserById(@PathVariable("id") Long userId){
+        return userService.queryUserById(userId);
+    }
+
+
+    //===================================自己实现的对用户的增删改查===================================
+
+
+
+    /**
+     * 新增一个用户
+     * @param user
+     * @return
+     */
+    @PutMapping("/saveUser")
+    public Result saveUser(@RequestBody User user){
+        return userService.saveUser(user);
+    }
+
+    /**
+     * 根据id删除用户
+     * @param userId
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public Result deleteUserById(@PathVariable("id") Long userId){
+        return userService.deleteUserById(userId);
+    }
+
+    /**
+     * 根据id更新用户
+     * @param user
+     * @return
+     */
+    @PostMapping("/update")
+    public Result updateUserById(@RequestBody User user){
+        return userService.updateUserById(user);
+    }
+
+    /**
+     * 分页查询用户
+     * @return
+     */
+    @GetMapping("/page")
+    public Result queryAll(Long page, Long pageSize){
+        log.info("=============="+page+pageSize+"==============");
+        return userService.page(page,pageSize);
+    }
+
+    /**
+     * 查询抢到了某张秒杀劵的所有用户
+     * @param seckill
+     * @return
+     */
+    @GetMapping("/queryBuySeckillUserById")
+    public Result queryBuySeckillUserById(Integer voucherId){
+        return userService.queryBuySeckillUserById(voucherId);
+    }
+
 }

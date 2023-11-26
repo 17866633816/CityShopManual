@@ -19,6 +19,7 @@ import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -37,7 +38,7 @@ import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
  * 服务实现类
  * </p>
  *
- * @author 虎哥
+ * @author 周星星
  * @since 2021-12-22
  */
 @Service
@@ -46,6 +47,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private UserMapper userMapper;
 
     /**
      * 发送手机验证码
@@ -228,4 +231,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //3.返回成功
         return Result.ok("已退出登录");
     }
+
+
+
+    //===================================自己实现的对用户的增删改查===================================
+
+
+
+    /**
+     * 添加一个用户
+     * @param user
+     * @return
+     */
+    @Override
+    public Result saveUser(User user) {
+        userMapper.saveUser(user);
+        return Result.ok("添加成功");
+    }
+
+    /**
+     * 根据id删除用户
+     * @param id
+     * @return
+     */
+    @Override
+    public Result deleteUserById(Long id) {
+        userMapper.deleteById(id);
+        return Result.ok("删除成功");
+    }
+
+    /**
+     * 根据id更新用户
+     * @param user
+     * @return
+     */
+    @Override
+    public Result updateUserById(User user) {
+        int count = userMapper.updateUserById(user);
+        return Result.ok("更新成功");
+    }
+
+    /**
+     * 分页查询
+     * @return
+     */
+    @Override
+    public Result page(Long page, Long pageSize) {
+        List<User> users = userMapper.page(page, pageSize);
+        return Result.ok(users);
+    }
+
+    /**
+     * 查询出抢到某张秒杀劵的所有用户
+     * @param seckillId
+     * @return
+     */
+    @Override
+    public Result queryBuySeckillUserById(Integer voucherId) {
+        List<User> users = userMapper.queryBuySeckillUserById(voucherId);
+        log.info("查询出抢到某张秒杀劵的所有用户:{}",users);
+        return Result.ok(users);
+    }
+
 }

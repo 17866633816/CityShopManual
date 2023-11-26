@@ -1,6 +1,7 @@
 package com.hmdp.service.impl;
 
 import com.hmdp.dto.Result;
+import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.VoucherOrder;
 import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -139,8 +141,11 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         //使用全局ID生成器生成订单ID
         long orderId = redisIdWorker.nextId("order");
         // 1.判断是否在活动时间内
-
-        // 1.执行lua脚本
+        SeckillVoucher seckillVoucher = seckillVoucherService.getById(voucherId);
+        if(seckillVoucher.getBeginTime().isAfter(LocalDateTime.now()) || seckillVoucher.getEndTime().isBefore(LocalDateTime.now())){
+            return Result.fail("不在活动时间内！");
+        }
+        // 2.执行lua脚本
         Long result = stringRedisTemplate.execute(
                 SECKILL_SCRIPT,
                 Collections.emptyList(),
@@ -148,9 +153,9 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         );
         //拆箱：包装类转为对应的基本数据类型
         int r = result.intValue();
-        // 2.判断结果是否为0
+        // 3.判断结果是否为0
         if (r != 0) {
-            // 2.1.不为0 ，代表没有购买资格
+            // 3.1.不为0 ，代表没有购买资格
             return Result.fail(r == 1 ? "库存不足" : "不能重复下单");
         }
 
@@ -168,10 +173,10 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         //发送消息
         rabbitTemplate.convertAndSend(queueName, voucherOrder);
 
-        //3.只能在此处获取代理对象，赋值给成员变量。因为代理对象的获取底层是基于ThreadLocal的,子线程是无法获取主线程的ThreadLocal的
+        //4.只能在此处获取代理对象，赋值给成员变量。因为代理对象的获取底层是基于ThreadLocal的,子线程是无法获取主线程的ThreadLocal的
         proxy = (IVoucherOrderService) AopContext.currentProxy();
 
-        //4.返回订单id
+        //5.返回订单id
         return Result.ok(orderId);
     }
 

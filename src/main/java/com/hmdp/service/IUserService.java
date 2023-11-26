@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
  * 服务类
  * </p>
  *
- * @author 虎哥
+ * @author 周星星
  * @since 2021-12-22
  */
 public interface IUserService extends IService<User> {
@@ -22,11 +22,21 @@ public interface IUserService extends IService<User> {
 
     Result login(LoginFormDTO loginForm);
 
-    Result queryUserById(Long userId);
-
     Result sign();
 
     Result signDays();
 
     Result logout(HttpServletRequest request);
+
+    Result page(Long page, Long pageSize);
+
+    Result saveUser(User user);
+
+    Result deleteUserById(Long id);
+
+    Result updateUserById(User user);
+
+    Result queryUserById(Long userId);
+
+    Result queryBuySeckillUserById(Integer voucherId);
 }

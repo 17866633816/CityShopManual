@@ -8,6 +8,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 
 @EnableAspectJAutoProxy(exposeProxy = true)
+//扫描mapper包
 @MapperScan("com.hmdp.mapper")
 @SpringBootApplication
 public class CityShopManualApplication {

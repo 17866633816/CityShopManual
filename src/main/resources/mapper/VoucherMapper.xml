@@ -10,4 +10,9 @@
         LEFT JOIN  tb_seckill_voucher sv ON v.id = sv.voucher_id
         WHERE v.shop_id = #{shopId} AND v.status = 1
     </select>
+
+    <select id="queryAll" resultType="Voucher" >
+        SELECT *
+        FROM tb_voucher
+    </select>
 </mapper>

@@ -1,7 +1,12 @@
 package com.hmdp;
 
+import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
+import com.hmdp.entity.User;
+import com.hmdp.entity.Voucher;
 import com.hmdp.entity.VoucherOrder;
+import com.hmdp.mapper.UserMapper;
+import com.hmdp.mapper.VoucherMapper;
 import com.hmdp.service.impl.ShopServiceImpl;
 import com.hmdp.utils.RedisClient;
 import com.hmdp.utils.RedisIdWorker;
@@ -15,6 +20,7 @@ import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +35,6 @@ import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
 import static com.hmdp.utils.RedisConstants.SHOP_GEO_KEY;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
 class HmDianPingApplicationTests {
 
     @Autowired
@@ -46,6 +51,12 @@ class HmDianPingApplicationTests {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private VoucherMapper voucherMapper;
 
     private ExecutorService es = Executors.newFixedThreadPool(500);
 
@@ -139,10 +150,11 @@ class HmDianPingApplicationTests {
     }
 
     /**
-     * 测试RabbitMQ
+     * 测试 RabbitMQ
      */
     @Test
     void test(){
+        System.out.println("5555");
         String queueName = "voucherOrder.queue";
         //消息
         VoucherOrder voucherOrder = new VoucherOrder();
@@ -155,5 +167,15 @@ class HmDianPingApplicationTests {
         voucherOrder.setVoucherId(2L);
         rabbitTemplate.convertAndSend(queueName, voucherOrder);
     }
+
+    /**
+     * 查询所有用户
+     */
+    @Test
+    public void getUserAll() {
+        List<User> users = userMapper.getAll();
+        System.out.println(users);
+    }
+
 
 }
