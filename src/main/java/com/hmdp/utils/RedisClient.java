@@ -82,11 +82,12 @@ public class RedisClient {
 
 
     //逻辑过期解决缓存击穿
+    //Function<ID,R> 表示dbFallBack函数的输入参数为 ID 类型，表示要查询的对象的标识符，输出参数为 R 类型，表示从数据库中获取到的数据类型。
     private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
     public <R,ID> R queryByIdWithLogicalExpire(String keyPrefix, ID id, Class<R> type, Function<ID,R> dbFallBack,
                                                Long time, TimeUnit unit){
 
-        //1.从redis查询商铺缓存
+        //1.从redis查询店铺缓存
         String key = keyPrefix + id;
         String json = stringRedisTemplate.opsForValue().get(key);
 

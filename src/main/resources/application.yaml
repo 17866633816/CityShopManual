@@ -29,6 +29,10 @@ spring:
     listener:
       simple:
         auto-startup: true
+  mail:
+    host: smtp.qq.com
+    username: 823879872@qq.com
+    password: mxvbkjyddptibfid
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
 logging:

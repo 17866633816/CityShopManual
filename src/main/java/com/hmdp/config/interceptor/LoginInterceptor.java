@@ -16,9 +16,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         //根据ThreadLocal中是否有用户信息，判断用户是否登录
         UserDTO user = UserHolder.getUser();
-        //没有登陆
+
+        //没有登陆，拦截
         if (user == null){
-            //拦截
             response.setStatus(401);
             return false;
         }

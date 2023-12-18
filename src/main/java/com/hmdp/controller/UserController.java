@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
  * </p>
  *
  * @author 周星星
- * @since 2021-12-22
+ * @since 2023-12-22
  */
 @Slf4j
 @RestController
@@ -38,11 +38,24 @@ public class UserController {
 
     /**
      * 发送手机验证码
+     * post请求方式也可以接收URl中？后面的请求参数
      */
     @PostMapping("/code")
-    public Result sendCode(@RequestParam("phone") String phone, HttpSession session) {
+    public Result sendCode(@RequestParam("phone") String phone) {
         // TODO 发送短信验证码并保存验证码
-        return userService.sendCode(phone, session);
+        return userService.sendCode(phone);
+
+    }
+
+    /**
+     * 发送邮箱验证码
+     * @param mail
+     * @return
+     */
+    @PostMapping("/mailCode")
+    public Result sendCodeToMail(String mail){
+        log.info(mail);
+        return userService.sendCodeToMail(mail);
     }
 
     /**
@@ -166,7 +179,7 @@ public class UserController {
 
     /**
      * 查询抢到了某张秒杀劵的所有用户
-     * @param seckill
+     * @param voucherId
      * @return
      */
     @GetMapping("/queryBuySeckillUserById")

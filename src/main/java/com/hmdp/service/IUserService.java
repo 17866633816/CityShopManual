@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
  */
 public interface IUserService extends IService<User> {
 
-    Result sendCode(String phone, HttpSession session);
+    Result sendCode(String phone);
 
     Result login(LoginFormDTO loginForm);
 
@@ -39,4 +39,6 @@ public interface IUserService extends IService<User> {
     Result queryUserById(Long userId);
 
     Result queryBuySeckillUserById(Integer voucherId);
+
+    Result sendCodeToMail(String mail);
 }

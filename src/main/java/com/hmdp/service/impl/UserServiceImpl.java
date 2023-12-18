@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,15 +51,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private UserMapper userMapper;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     /**
      * 发送手机验证码
      * @param phone
-     * @param session
      * @return
      */
     @Override
-    public Result sendCode(String phone, HttpSession session) {
+    public Result sendCode(String phone) {
 
         //1.校验手机号格式是否正确
         if(RegexUtils.isPhoneInvalid(phone)){
@@ -77,6 +80,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //返回ok
         return Result.ok();
     }
+
+
+    /**
+     * 将验证码发送到指定邮箱中
+     * @param mail
+     * @return
+     */
+    @Override
+    public Result sendCodeToMail(String mail) {
+
+        //5.2.将验证码发送到该邮箱
+        //发送人
+        String from = "823879872@qq.com";
+        //接收人
+        String to = mail;
+        //标题
+        String subject = "测试邮件";
+        //正文
+        //3.生成验证码作为邮箱的正文
+        String code = RandomUtil.randomNumbers(6);
+        String context = "登录验证码:"+code;
+
+        //4.将验证码存入Redis，并设置过期时间
+        stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + mail, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
+
+        //5.将验证码发送到该邮箱
+        log.debug("验证码发送成功，验证码为：{}", code);
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setFrom(from);
+        simpleMailMessage.setTo(to);
+        simpleMailMessage.setSubject(subject);
+        simpleMailMessage.setText(context);
+        javaMailSender.send(simpleMailMessage);
+
+        //返回ok
+        return Result.ok();
+    }
+
 
     /**
      * 登录功能
@@ -283,7 +324,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     /**
      * 查询出抢到某张秒杀劵的所有用户
-     * @param seckillId
+     * @param voucherId
      * @return
      */
     @Override

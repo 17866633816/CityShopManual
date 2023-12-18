@@ -19,6 +19,7 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate));
         registry.addInterceptor(new LoginInterceptor()).excludePathPatterns(
                 "/user/code",
+                "/user/mailCode",
                 "/user/saveUser",
                 "/user/test",
                 "/user/login",

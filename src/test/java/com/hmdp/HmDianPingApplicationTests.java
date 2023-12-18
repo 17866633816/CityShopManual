@@ -1,9 +1,6 @@
 package com.hmdp;
 
-import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
-import com.hmdp.entity.User;
-import com.hmdp.entity.Voucher;
 import com.hmdp.entity.VoucherOrder;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.mapper.VoucherMapper;
@@ -11,18 +8,17 @@ import com.hmdp.service.impl.ShopServiceImpl;
 import com.hmdp.utils.RedisClient;
 import com.hmdp.utils.RedisIdWorker;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -52,10 +48,10 @@ class HmDianPingApplicationTests {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
-    @Autowired
+    @Resource
     private VoucherMapper voucherMapper;
 
     private ExecutorService es = Executors.newFixedThreadPool(500);
@@ -167,15 +163,5 @@ class HmDianPingApplicationTests {
         voucherOrder.setVoucherId(2L);
         rabbitTemplate.convertAndSend(queueName, voucherOrder);
     }
-
-    /**
-     * 查询所有用户
-     */
-    @Test
-    public void getUserAll() {
-        List<User> users = userMapper.getAll();
-        System.out.println(users);
-    }
-
 
 }

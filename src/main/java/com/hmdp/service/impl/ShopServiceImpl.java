@@ -51,7 +51,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     private RedisClient redisClient;
 
     /**
-     * 根据id查询商户信息
+     * 根据id查询店铺信息
      *
      * @param id
      * @return

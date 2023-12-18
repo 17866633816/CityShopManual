@@ -16,9 +16,12 @@ import static com.hmdp.utils.RedisConstants.LOGIN_USER_KEY;
 import static com.hmdp.utils.RedisConstants.LOGIN_USER_TTL;
 
 
-//通过拦截器进行登录校验
+/**
+ * 通过拦截器进行登录校验
+ */
 public class RefreshTokenInterceptor implements HandlerInterceptor {
 
+    //在MvcConfig类中通过构造函数注入的方式注入的StringRedisTemplate对象
     private StringRedisTemplate stringRedisTemplate;
 
     public RefreshTokenInterceptor(StringRedisTemplate stringRedisTemplate) {
